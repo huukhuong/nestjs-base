@@ -1,6 +1,7 @@
 import { config } from 'dotenv';
 import { ENV } from 'src/config/env';
 import { DataSource, DataSourceOptions } from 'typeorm';
+import { SnakeNamingStrategy } from './snake-naming-strategy';
 config();
 
 export const dataSourceOption: DataSourceOptions = {
@@ -14,6 +15,7 @@ export const dataSourceOption: DataSourceOptions = {
   migrations: ['dist/database/migrations/*.js'],
   migrationsTableName: 'migrations',
   synchronize: false,
+  namingStrategy: new SnakeNamingStrategy()
 };
 
 const dataSource = new DataSource(dataSourceOption);

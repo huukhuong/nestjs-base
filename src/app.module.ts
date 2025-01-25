@@ -5,6 +5,8 @@ import { ConfigModule } from '@nestjs/config';
 import { MailModule } from './mail/mail.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { dataSourceOption } from 'database/data-source';
+import { UserModule } from './user/user.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -14,6 +16,8 @@ import { dataSourceOption } from 'database/data-source';
     TypeOrmModule.forRoot(dataSourceOption),
     TypeOrmModule.forFeature([]),
     MailModule,
+    UserModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
