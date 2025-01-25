@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { dataSourceOption } from 'database/data-source';
-import { AppController } from './app.controller';
 import { AuthModule } from './auth/auth.module';
 import { MailModule } from './mail/mail.module';
 import { UserModule } from './user/user.module';
@@ -22,7 +21,7 @@ import { LocationModule } from './location/location.module';
     AuthModule,
     LocationModule,
   ],
-  controllers: [AppController],
+  controllers: [],
   providers: [
     {
       provide: APP_GUARD,
