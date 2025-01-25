@@ -1,0 +1,92 @@
+<style>
+  * {
+    box-sizing: border-box; /* Đảm bảo tính toán chiều rộng và chiều cao không bị tràn */
+  }
+  body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    overflow-x: hidden; /* Ngăn việc scroll ngang */
+  }
+  body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f4;
+  }
+  .email-container {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    background-color: #ffffff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  .header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .header h2 {
+    font-size: 22px;
+    color: #333;
+  }
+  .content {
+    font-size: 15px;
+    color: #555;
+    line-height: 1.6;
+  }
+  .otp-code {
+    font-size: 24px;
+    font-weight: bold;
+    color: #007BFF;
+    text-align: center;
+    padding: 10px;
+    background-color: #f0f8ff;
+    border-radius: 5px;
+    margin: 20px 0;
+  }
+  .footer {
+    font-size: 13px;
+    color: #777;
+    text-align: center;
+    margin-top: 20px;
+  }
+  .footer a {
+    color: #007BFF;
+    text-decoration: none;
+  }
+  /* Điều chỉnh chiều rộng cho thiết bị di động */
+  @media only screen and (max-width: 600px) {
+    .email-container {
+      padding: 15px;
+    }
+    .header h2 {
+      font-size: 20px;
+    }
+    .content {
+      font-size: 14px;
+    }
+    .otp-code {
+      font-size: 20px;
+    }
+  }
+</style>
+<body>
+  <div class="email-container">
+    <div class="header">
+      <h2>Chào bạn,</h2>
+    </div>
+    <div class="content">
+      <p>Chúng tôi đã nhận được yêu cầu xác thực từ bạn. Mã xác thực của bạn là:</p>
+      <div class="otp-code">
+        {{ otp }}
+      </div>
+      <p>Vui lòng sử dụng mã này để hoàn tất quy trình xác thực. Mã xác thực sẽ hết hạn trong vòng <strong>5 phút</strong>.</p>
+      <p>Đừng chia sẻ mã xác thực này với bất kỳ ai để bảo vệ tài khoản của bạn.</p>
+    </div>
+    <div class="footer">
+      <p>Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi.</p>
+      <p><a href="#">Liên hệ hỗ trợ</a> | <a href="#">Điều khoản dịch vụ</a></p>
+    </div>
+  </div>
+</body>
+</html>
