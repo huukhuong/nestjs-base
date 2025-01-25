@@ -1,13 +1,16 @@
+import { Exclude } from 'class-transformer';
+import { Role } from 'src/authorize/entities/role.entity';
 import {
   Column,
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  JoinTable,
+  ManyToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { EUserStatus } from './enums/user-status';
-import { Exclude } from 'class-transformer';
 
 @Entity('users')
 export class User {
@@ -87,4 +90,18 @@ export class User {
   @DeleteDateColumn()
   @Exclude()
   deletedAt: Date;
+
+  @ManyToMany(() => Role)
+  @JoinTable({
+    name: 'roles_users',
+    joinColumn: {
+      name: 'user_id',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'role_id',
+      referencedColumnName: 'id',
+    },
+  })
+  roles: Role[];
 }

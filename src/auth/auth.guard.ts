@@ -7,7 +7,7 @@ import {
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
-import BaseException from 'src/common/base-exception';
+import { BaseException } from 'src/common/exceptions/base-exception';
 import { ENV } from 'src/config/env';
 
 @Injectable()

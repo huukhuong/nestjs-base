@@ -1,13 +1,13 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import BaseException from 'src/common/base-exception';
-import { User } from 'src/user/user.entity';
-import { Repository } from 'typeorm';
-import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { LoginResponseDto } from './dto/login-res.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import * as bcrypt from 'bcrypt';
+import { BaseException } from 'src/common/exceptions/base-exception';
 import { ENV } from 'src/config/env';
 import { EUserStatus } from 'src/user/enums/user-status';
+import { User } from 'src/user/user.entity';
+import { Repository } from 'typeorm';
+import { LoginResponseDto } from './dto/login-res.dto';
 import { RegisterRequestDto } from './dto/register-req.dto';
 
 @Injectable()

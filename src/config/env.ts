@@ -2,6 +2,7 @@ import { config } from 'dotenv';
 config();
 
 export const ENV = {
+  UUID_EXAMPLE: 'd93a4144-19d5-41b3-bb68-8233c86fc6ae',
   DB_HOST: process.env.DB_HOST,
   DB_PORT: Number(process.env.DB_PORT || 3306),
   DB_USERNAME: process.env.DB_USERNAME,

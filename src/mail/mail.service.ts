@@ -1,10 +1,10 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
-import BaseException from 'src/common/base-exception';
-import { SendOtpMaiReqDto } from './dto/send-otp-mail-req.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Mail } from './mail.entity';
+import { BaseException } from 'src/common/exceptions/base-exception';
 import { Repository } from 'typeorm';
+import { SendOtpMaiReqDto } from './dto/send-otp-mail-req.dto';
+import { Mail } from './mail.entity';
 
 @Injectable()
 export class MailService {

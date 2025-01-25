@@ -1,9 +1,9 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { LoginRequestDto } from './dto/login-req.dto';
+import { ApiBearerAuth } from '@nestjs/swagger';
 import { BaseResponse } from 'src/common/base-response';
 import { Public } from 'src/common/decorators';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { AuthService } from './auth.service';
+import { LoginRequestDto } from './dto/login-req.dto';
 import { RegisterRequestDto } from './dto/register-req.dto';
 
 @Controller('auth')
