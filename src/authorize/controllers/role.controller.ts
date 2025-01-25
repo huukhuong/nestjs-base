@@ -20,7 +20,7 @@ export class RoleController {
   })
   async search(@Body() params: SearchRoleDto) {
     const result = await this.roleService.search(params);
-    return BaseResponse.success(result);
+    return BaseResponse.paginate(result);
   }
 
   @Post('/create')

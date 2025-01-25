@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { PaggingRequestDto } from 'src/common/pagging-req.dto';
+import { PaggingRequestDto } from 'src/common/dto/pagging-req.dto';
 import { ENV } from 'src/config/env';
 
 export class SearchPermissionDto extends PaggingRequestDto {

@@ -19,7 +19,7 @@ export class PermissionController {
   })
   async search(@Body() params: SearchPermissionDto) {
     const result = await this.permissionService.search(params);
-    return BaseResponse.success(result);
+    return BaseResponse.paginate(result);
   }
 
   @Post('/create')
@@ -63,7 +63,7 @@ export class PermissionController {
   })
   async searchGroup(@Body() params: SearchPermissionGroupDto) {
     const result = await this.permissionService.searchGroup(params);
-    return BaseResponse.success(result);
+    return BaseResponse.paginate(result);
   }
 
   @Post('/create-group')

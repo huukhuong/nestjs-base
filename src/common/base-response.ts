@@ -1,4 +1,5 @@
 import { HttpStatus } from '@nestjs/common';
+import { PaggingResponseDto } from './dto/pagging-res.dto';
 
 interface IResponse<T> {
   statusCode?: HttpStatus;
@@ -57,23 +58,17 @@ export class BaseResponse<T> implements IResponse<T> {
     });
   }
 
-  static paginate<T>(
-    data: T[],
-    currentPage: number,
-    perPage: number,
-    total: number,
-  ) {
-    const pages = Math.ceil(total / perPage);
+  static paginate<T>(body: PaggingResponseDto) {
     return new BaseResponse<T[]>({
       statusCode: HttpStatus.OK,
       success: true,
-      data,
+      data: body.data,
       message: 'Successfully',
       pagination: {
-        total,
-        pages,
-        perPage,
-        currentPage,
+        total: body.total,
+        pages: body.pages,
+        perPage: body.perPage,
+        currentPage: body.currentPage,
       },
     });
   }

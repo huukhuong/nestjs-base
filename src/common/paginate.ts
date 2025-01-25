@@ -9,8 +9,9 @@ import {
   Repository,
   SelectQueryBuilder,
 } from 'typeorm';
-import { BaseResponse } from './base-response';
 import { BaseException } from './exceptions/base-exception';
+import { PaggingRequestDto } from './dto/pagging-req.dto';
+import { PaggingResponseDto } from './dto/pagging-res.dto';
 
 interface PaginationProps<T extends ObjectLiteral> {
   pageIndex: number;
@@ -24,7 +25,9 @@ interface PaginationProps<T extends ObjectLiteral> {
   orderby?: FindOptionsOrder<T>;
 }
 
-const paginate = async <T extends ObjectLiteral>(props: PaginationProps<T>) => {
+const paginate = async <T extends ObjectLiteral>(
+  props: PaginationProps<T>,
+): Promise<PaggingResponseDto> => {
   const {
     pageIndex,
     pageSize,
@@ -64,19 +67,13 @@ const paginate = async <T extends ObjectLiteral>(props: PaginationProps<T>) => {
     [data, total] = await builder.skip(skip).take(pageSize).getManyAndCount();
   }
 
-  return new BaseResponse({
-    statusCode: 200,
-    success: true,
+  return {
     data: data,
-    message: 'Lấy danh sách thành công',
-    pagination: {
-      currentPage: pageIndex,
-      perPage: pageSize,
-      pages: Math.ceil(total / pageSize),
-      total: total,
-    },
-  });
+    currentPage: pageIndex,
+    perPage: pageSize,
+    pages: Math.ceil(total / pageSize),
+    total: total,
+  };
 };
 
 export { paginate };
-

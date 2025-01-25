@@ -1,15 +1,15 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ILike, Repository } from 'typeorm';
-import { PermissionGroup } from '../entities/permission-group.entity';
-import { Permission } from '../entities/permission.entity';
 import { BaseException } from 'src/common/exceptions/base-exception';
+import { NotFoundException } from 'src/common/exceptions/not-found-exception';
+import { paginate } from 'src/common/paginate';
+import { ILike, Repository } from 'typeorm';
 import { CreatePermissionGroupDto } from '../dto/create-permission-group.dto';
 import { CreatePermissionDto } from '../dto/create-permission.dto';
 import { SearchPermissionGroupDto } from '../dto/search-permission-group.dto';
 import { SearchPermissionDto } from '../dto/search-permission.dto';
-import { paginate } from 'src/common/paginate';
-import { NotFoundException } from 'src/common/exceptions/not-found-exception';
+import { PermissionGroup } from '../entities/permission-group.entity';
+import { Permission } from '../entities/permission.entity';
 
 @Injectable()
 export class PermissionService {
@@ -35,10 +35,7 @@ export class PermissionService {
         ],
       });
     } catch (e) {
-      throw new BaseException(
-        'Có lỗi xảy ra.\n' + e.message,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new BaseException('Có lỗi xảy ra.\n' + e.message);
     }
   }
 
@@ -61,10 +58,7 @@ export class PermissionService {
       if (e instanceof NotFoundException) {
         throw e;
       }
-      throw new BaseException(
-        'Có lỗi xảy ra.\n' + e.message,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new BaseException('Có lỗi xảy ra.\n' + e.message);
     }
   }
 
@@ -97,10 +91,7 @@ export class PermissionService {
       if (e instanceof NotFoundException) {
         throw e;
       }
-      throw new BaseException(
-        'Có lỗi xảy ra.\n' + e.message,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new BaseException('Có lỗi xảy ra.\n' + e.message);
     }
   }
 
@@ -123,10 +114,7 @@ export class PermissionService {
       if (e instanceof NotFoundException) {
         throw e;
       }
-      throw new BaseException(
-        'Có lỗi xảy ra.\n' + e.message,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new BaseException('Có lỗi xảy ra.\n' + e.message);
     }
   }
 
@@ -146,10 +134,7 @@ export class PermissionService {
         where: [...(params.name ? [{ name: ILike(`%${params.name}%`) }] : [])],
       });
     } catch (e) {
-      throw new BaseException(
-        'Có lỗi xảy ra.\n' + e.message,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new BaseException('Có lỗi xảy ra.\n' + e.message);
     }
   }
 
@@ -159,10 +144,7 @@ export class PermissionService {
       const result = await this.permissionGroupRepository.save(role);
       return result;
     } catch (e) {
-      throw new BaseException(
-        'Có lỗi xảy ra.\n' + e.message,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new BaseException('Có lỗi xảy ra.\n' + e.message);
     }
   }
 
@@ -184,10 +166,7 @@ export class PermissionService {
       if (e instanceof NotFoundException) {
         throw e;
       }
-      throw new BaseException(
-        'Có lỗi xảy ra.\n' + e.message,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new BaseException('Có lỗi xảy ra.\n' + e.message);
     }
   }
 
@@ -209,10 +188,7 @@ export class PermissionService {
       if (e instanceof NotFoundException) {
         throw e;
       }
-      throw new BaseException(
-        'Có lỗi xảy ra.\n' + e.message,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new BaseException('Có lỗi xảy ra.\n' + e.message);
     }
   }
 }
