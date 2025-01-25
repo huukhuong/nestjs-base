@@ -4,6 +4,7 @@ import { LoginRequestDto } from './dto/login-req.dto';
 import { BaseResponse } from 'src/common/base-response';
 import { Public } from 'src/common/decorators';
 import { ApiBearerAuth } from '@nestjs/swagger';
+import { RegisterRequestDto } from './dto/register-req.dto';
 
 @Controller('auth')
 @ApiBearerAuth()
@@ -19,7 +20,8 @@ export class AuthController {
 
   @Post('register')
   @Public()
-  async register() {
-    return BaseResponse.success(null, 'Đăng ký thành công');
+  async register(@Body() body: RegisterRequestDto) {
+    const response = await this.authService.register(body);
+    return BaseResponse.success(response, 'Đăng ký thành công');
   }
 }

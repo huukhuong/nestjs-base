@@ -1,7 +1,7 @@
 import { HttpStatus } from '@nestjs/common';
 
 interface IResponse<T> {
-  code?: HttpStatus;
+  statusCode?: HttpStatus;
   success?: boolean;
   data?: T | null | undefined;
   message?: string | Array<string>;
@@ -25,7 +25,7 @@ export class BaseResponse<T> implements IResponse<T> {
   pagination: Pagination | null | undefined;
 
   constructor(params: IResponse<T>) {
-    this.code = params.code || 200;
+    this.code = params.statusCode || 200;
     this.success = params.success || true;
     this.data = params.data || null;
     this.message = params.message || '';
@@ -39,7 +39,7 @@ export class BaseResponse<T> implements IResponse<T> {
     message: string = 'Successfully',
   ): BaseResponse<T> {
     return new BaseResponse<T>({
-      code: HttpStatus.OK,
+      statusCode: HttpStatus.OK,
       success: true,
       data,
       message,
@@ -51,7 +51,7 @@ export class BaseResponse<T> implements IResponse<T> {
     code: HttpStatus = HttpStatus.INTERNAL_SERVER_ERROR,
   ): BaseResponse<null> {
     return new BaseResponse({
-      code,
+      statusCode: code,
       success: false,
       message,
     });
@@ -65,7 +65,7 @@ export class BaseResponse<T> implements IResponse<T> {
   ) {
     const pages = Math.ceil(total / perPage);
     return new BaseResponse<T[]>({
-      code: HttpStatus.OK,
+      statusCode: HttpStatus.OK,
       success: true,
       data,
       message: 'Successfully',

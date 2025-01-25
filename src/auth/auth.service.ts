@@ -8,6 +8,7 @@ import { JwtService } from '@nestjs/jwt';
 import { LoginResponseDto } from './dto/login-res.dto';
 import { ENV } from 'src/config/env';
 import { EUserStatus } from 'src/user/enums/user-status';
+import { RegisterRequestDto } from './dto/register-req.dto';
 
 @Injectable()
 export class AuthService {
@@ -38,6 +39,32 @@ export class AuthService {
     }
 
     return await this.generateUserResponse(user);
+  }
+
+  async register(body: RegisterRequestDto) {
+    const user = await this.userRepository.findOne({
+      where: [{ username: body.username }, { email: body.email }],
+    });
+
+    if (user) {
+      throw new BaseException('Tài khoản đã tồn tại', HttpStatus.CONFLICT);
+    }
+
+    const hashedPassword = await bcrypt.hash(body.password, ENV.HASH_ROUND);
+
+    const newUser = this.userRepository.create({
+      firstName: body.firstName,
+      lastName: body.lastName,
+      username: body.username,
+      email: body.email,
+      password: hashedPassword,
+      phoneNumber: body.phoneNumber,
+      status: EUserStatus.ACTIVE,
+    });
+
+    const userCreated = await this.userRepository.save(newUser);
+
+    return await this.generateUserResponse(userCreated);
   }
 
   async generateUserResponse(user: User) {
