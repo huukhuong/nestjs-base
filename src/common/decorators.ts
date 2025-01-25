@@ -1,4 +1,4 @@
-import { Param, ParseUUIDPipe, SetMetadata } from "@nestjs/common";
+import { Param, ParseUUIDPipe, SetMetadata } from '@nestjs/common';
 
 export const Public = () => SetMetadata('noAuth', true);
 export const Permissions = (...permissions: string[]) =>

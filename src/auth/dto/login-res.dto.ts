@@ -16,9 +16,9 @@ export class LoginResponseDto {
   }
 
   toPlain() {
-    const plainUser = classToPlain(this.user);  // Chuyển sang plain object
-    const user = plainToClass(User, plainUser);  // Chuyển lại thành instance của User
-    this.user = user;  // Gán lại vào user
-    return this;  // Trả về đối tượng Lo
+    const plainUser = classToPlain(this.user); // Chuyển sang plain object
+    const user = plainToClass(User, plainUser); // Chuyển lại thành instance của User
+    this.user = user; // Gán lại vào user
+    return this; // Trả về đối tượng Lo
   }
 }

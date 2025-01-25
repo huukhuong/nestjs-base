@@ -5,12 +5,12 @@ import { AdministrativeRegionResponseDto } from './dto/administrative-region-res
 import { AdministrativeUnitResponseDto } from './dto/administrative-unit-res.dto';
 import { DistrictResponseDto } from './dto/district-res.dto';
 import { ProvinceResponseDto } from './dto/province-res.dto';
+import { WardResponseDto } from './dto/ward-res.dto';
 import { AdministrativeRegion } from './entities/administrative-region.entity';
 import { AdministrativeUnit } from './entities/administrative-unit.entity';
 import { District } from './entities/district.entity';
 import { Province } from './entities/province.entity';
 import { Ward } from './entities/ward.entity';
-import { WardResponseDto } from './dto/ward-res.dto';
 
 @Injectable()
 export class LocationService {

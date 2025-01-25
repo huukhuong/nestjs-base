@@ -26,12 +26,12 @@ export class AdministrativeUnit {
   @Column({ nullable: true })
   code_name_en: string;
 
-  @OneToMany(() => Province, province => province.administrativeUnit)
+  @OneToMany(() => Province, (province) => province.administrativeUnit)
   provinces: Province[];
 
-  @OneToMany(() => District, district => district.administrativeUnit)
+  @OneToMany(() => District, (district) => district.administrativeUnit)
   districts: District[];
 
-  @OneToMany(() => Ward, ward => ward.administrativeUnit)
+  @OneToMany(() => Ward, (ward) => ward.administrativeUnit)
   wards: Ward[];
 }

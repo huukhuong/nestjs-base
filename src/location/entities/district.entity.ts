@@ -23,12 +23,18 @@ export class District {
   @Column({ nullable: true })
   code_name: string;
 
-  @ManyToOne(() => Province, province => province.districts, { nullable: true })
+  @ManyToOne(() => Province, (province) => province.districts, {
+    nullable: true,
+  })
   province: Province;
 
-  @ManyToOne(() => AdministrativeUnit, administrativeUnit => administrativeUnit.districts, { nullable: true })
+  @ManyToOne(
+    () => AdministrativeUnit,
+    (administrativeUnit) => administrativeUnit.districts,
+    { nullable: true },
+  )
   administrativeUnit: AdministrativeUnit;
 
-  @OneToMany(() => Ward, ward => ward.district)
+  @OneToMany(() => Ward, (ward) => ward.district)
   wards: Ward[];
 }

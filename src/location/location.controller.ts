@@ -1,8 +1,8 @@
 import { Controller, Get, Param } from '@nestjs/common';
+import { ApiOperation } from '@nestjs/swagger';
+import { BaseResponse } from 'src/common/base-response';
 import { Public } from 'src/common/decorators';
 import { LocationService } from './location.service';
-import { BaseResponse } from 'src/common/base-response';
-import { ApiOperation } from '@nestjs/swagger';
 
 @Controller('location')
 @Public()

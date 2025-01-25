@@ -22,9 +22,13 @@ export class Ward {
   @Column({ nullable: true })
   code_name: string;
 
-  @ManyToOne(() => District, district => district.wards, { nullable: true })
+  @ManyToOne(() => District, (district) => district.wards, { nullable: true })
   district: District;
 
-  @ManyToOne(() => AdministrativeUnit, administrativeUnit => administrativeUnit.wards, { nullable: true })
+  @ManyToOne(
+    () => AdministrativeUnit,
+    (administrativeUnit) => administrativeUnit.wards,
+    { nullable: true },
+  )
   administrativeUnit: AdministrativeUnit;
 }

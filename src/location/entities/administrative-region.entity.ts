@@ -18,6 +18,6 @@ export class AdministrativeRegion {
   @Column({ nullable: true })
   code_name_en: string;
 
-  @OneToMany(() => Province, province => province.administrativeRegion)
+  @OneToMany(() => Province, (province) => province.administrativeRegion)
   provinces: Province[];
 }

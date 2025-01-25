@@ -1,4 +1,4 @@
-import { Expose } from "class-transformer";
+import { Expose } from 'class-transformer';
 
 export class AdministrativeUnitResponseDto {
   @Expose()
@@ -6,7 +6,7 @@ export class AdministrativeUnitResponseDto {
 
   @Expose()
   shortName: string;
-  
+
   @Expose()
   shortNameEn: string;
 
