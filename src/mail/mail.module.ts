@@ -5,6 +5,8 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { join } from 'path';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { ENV } from 'src/config/env';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Mail } from './mail.entity';
 
 @Module({
   imports: [
@@ -28,8 +30,9 @@ import { ENV } from 'src/config/env';
         },
       },
     }),
+    TypeOrmModule.forFeature([Mail]),
   ],
   providers: [MailService],
-  controllers: [MailController]
+  controllers: [MailController],
 })
 export class MailModule {}
