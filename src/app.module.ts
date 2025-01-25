@@ -8,6 +8,7 @@ import { MailModule } from './mail/mail.module';
 import { UserModule } from './user/user.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth/auth.guard';
+import { LocationModule } from './location/location.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { AuthGuard } from './auth/auth.guard';
     MailModule,
     UserModule,
     AuthModule,
+    LocationModule,
   ],
   controllers: [AppController],
   providers: [
