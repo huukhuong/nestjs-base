@@ -12,4 +12,8 @@ export const ENV = {
   MAIL_USER: process.env.MAIL_USER,
   MAIL_PASS: process.env.MAIL_PASS,
   MAIL_FROM: process.env.MAIL_FROM,
+  JWT_SECRET: process.env.JWT_SECRET,
+  JWT_EXPIRATION_TIME: process.env.JWT_EXPIRATION_TIME,
+  JWT_REFRESH_EXPIRATION_TIME: process.env.JWT_REFRESH_EXPIRATION_TIME,
+  HASH_ROUND: Number(process.env.HASH_ROUND || 12),
 };

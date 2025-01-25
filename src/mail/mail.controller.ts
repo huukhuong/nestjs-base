@@ -1,11 +1,11 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { BaseResponse } from 'src/common/base-response';
 import { SendOtpMaiReqDto } from './dto/send-otp-mail-req.dto';
 import { MailService } from './mail.service';
 
 @Controller('mail')
-@ApiTags('mail')
+@ApiBearerAuth()
 export class MailController {
   constructor(private readonly mailService: MailService) {}
 

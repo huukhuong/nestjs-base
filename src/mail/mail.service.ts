@@ -10,7 +10,7 @@ import { Repository } from 'typeorm';
 export class MailService {
   constructor(
     private mailerService: MailerService,
-    @InjectRepository(Mail) private mailRepository: Repository<Mail>,
+    @InjectRepository(Mail) private readonly mailRepository: Repository<Mail>,
   ) {}
 
   async sendOtpMail(body: SendOtpMaiReqDto) {

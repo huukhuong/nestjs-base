@@ -7,6 +7,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { EUserStatus } from './enums/user-status';
+import { Exclude } from 'class-transformer';
 
 @Entity('users')
 export class User {
@@ -49,6 +50,7 @@ export class User {
   @Column({
     length: 60,
   })
+  @Exclude()
   password: string;
 
   @Column({
@@ -83,5 +85,6 @@ export class User {
   updatedAt: Date;
 
   @DeleteDateColumn()
+  @Exclude()
   deletedAt: Date;
 }
