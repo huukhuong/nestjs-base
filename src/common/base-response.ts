@@ -34,7 +34,7 @@ export class BaseResponse<T> implements IResponse<T> {
     return this;
   }
 
-  static success<T>(data: T, message: string = 'Success'): BaseResponse<T> {
+  static success<T>(data: T, message: string = 'Successfully'): BaseResponse<T> {
     return new BaseResponse<T>({
       code: HttpStatus.OK,
       success: true,
@@ -65,7 +65,7 @@ export class BaseResponse<T> implements IResponse<T> {
       code: HttpStatus.OK,
       success: true,
       data,
-      message: 'Success',
+      message: 'Successfully',
       pagination: {
         total,
         pages,
