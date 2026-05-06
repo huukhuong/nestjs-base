@@ -37,7 +37,7 @@ const bootstrap = async () => {
   Logger.verbose('============================================');
   Logger.verbose(`Server is running on port ${port}`);
   Logger.verbose(`CORS Origin: ${JSON.stringify(corsOrigin)}`);
-  Logger.verbose(`Swagger URL: http://localhost:${port}/swagger`);
+  Logger.verbose(`Swagger URL: ${process.env.HOST}/swagger`);
   Logger.verbose('============================================');
 };
 
