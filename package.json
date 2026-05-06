@@ -1,5 +1,5 @@
 {
-  "name": "api",
+  "name": "nestjs-base",
   "version": "0.0.1",
   "description": "",
   "author": "",
@@ -12,14 +12,27 @@
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
-    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix"
+    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "make:migration": "node scripts/make-migration.mjs",
+    "migrate": "node scripts/migrate.mjs run",
+    "migrate:fresh": "node scripts/migrate.mjs fresh",
+    "migration:revert": "node scripts/migrate.mjs revert",
+    "seed": "node scripts/seed.mjs"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
+    "@nestjs/config": "^4.0.4",
     "@nestjs/core": "^11.0.1",
     "@nestjs/platform-express": "^11.0.1",
+    "@nestjs/swagger": "^11.4.2",
+    "@nestjs/typeorm": "^11.0.1",
+    "dotenv": "^17.4.2",
+    "pg": "^8.20.0",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "sql-formatter": "^15.7.3",
+    "typeorm": "^0.3.28",
+    "typeorm-seeding": "^1.6.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
@@ -31,6 +44,7 @@
     "@types/jest": "^30.0.0",
     "@types/node": "^24.0.0",
     "@types/supertest": "^7.0.0",
+    "dotenv-cli": "^11.0.0",
     "eslint": "^9.18.0",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.2.2",
