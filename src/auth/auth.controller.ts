@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { RegisterDto } from './dto/register.dto';
 import { AuthService } from './auth.service';
@@ -26,6 +34,7 @@ export class AuthController {
 
   @Post('login')
   @Public()
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Login user' })
   @ApiBody({ type: LoginDto })
   async login(@Body() payload: LoginDto) {
@@ -34,6 +43,7 @@ export class AuthController {
 
   @Post('refresh-token')
   @Public()
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Refresh access token' })
   @ApiBody({ type: RefreshTokenDto })
   async refreshToken(@Body() payload: RefreshTokenDto) {
@@ -42,6 +52,7 @@ export class AuthController {
 
   @Post('forgot-password')
   @Public()
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Send OTP for forgot password' })
   @ApiBody({ type: ForgotPasswordDto })
   async forgotPassword(@Body() payload: ForgotPasswordDto) {
@@ -53,6 +64,7 @@ export class AuthController {
 
   @Post('reset-password')
   @Public()
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Reset password using verified reset token' })
   @ApiBody({ type: ResetPasswordDto })
   async resetPassword(@Body() payload: ResetPasswordDto) {
