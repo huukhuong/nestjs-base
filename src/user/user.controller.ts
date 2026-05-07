@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UserService } from './user.service';
 import { ERoles } from 'src/common/enum';
 import {
@@ -12,6 +12,7 @@ import type { PaginationQuery } from 'src/common/pagination';
 
 @ApiTags('User')
 @Controller('users')
+@ApiBearerAuth()
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
