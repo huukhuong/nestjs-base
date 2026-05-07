@@ -3,6 +3,7 @@ import { Repository } from 'typeorm';
 import { UserEntity } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
+import { paginate, PaginationQuery } from 'src/common/pagination';
 
 @Injectable()
 export class UserService {
@@ -45,6 +46,18 @@ export class UserService {
       where: {
         username,
       },
+    });
+  }
+
+  async findAll(query: PaginationQuery) {
+    return paginate(this.userRepository, query, {
+      defaultOrderBy: 'createdAt',
+      allowedOrderBy: ['createdAt', 'updatedAt', 'firstName', 'lastName'],
+      message: 'Get users successfully',
+      transform: user =>
+        Object.fromEntries(
+          Object.entries(user).filter(([key]) => key !== 'password'),
+        ),
     });
   }
 }

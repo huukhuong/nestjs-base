@@ -1,14 +1,27 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UserService } from './user.service';
 import { ERoles } from 'src/common/enum';
-import { Roles } from 'src/common/decorators';
+import {
+  ApiPaginationQuery,
+  PaginationQueryParam,
+  Roles,
+} from 'src/common/decorators';
 import { CreateUserDto } from './dto/create-user.dto';
+import type { PaginationQuery } from 'src/common/pagination';
 
 @ApiTags('User')
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
+
+  @Get()
+  @Roles(ERoles.SUPER_ADMIN, ERoles.ADMIN)
+  @ApiOperation({ summary: 'Get users with pagination' })
+  @ApiPaginationQuery
+  async findAll(@PaginationQueryParam() query: PaginationQuery) {
+    return this.userService.findAll(query);
+  }
 
   @Post()
   @Roles(ERoles.SUPER_ADMIN, ERoles.ADMIN)
