@@ -4,3 +4,4 @@ export * from './permission.decorator';
 export * from './public.decorator';
 export * from './role.decorator';
 export * from './user.decorator';
+export * from './uuid-param.decorator';

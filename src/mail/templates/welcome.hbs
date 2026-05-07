@@ -1,0 +1,51 @@
+<style>
+  * { box-sizing: border-box; }
+  body, html { margin: 0; padding: 0; width: 100%; overflow-x: hidden; }
+  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f4; }
+  .email-container {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 32px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+  .header { text-align: center; margin-bottom: 24px; }
+  .header h1 { font-size: 24px; color: #1a1a2e; margin: 0; }
+  .content { font-size: 16px; color: #444; line-height: 1.7; }
+  .highlight { color: #0d9488; font-weight: 600; }
+  .footer {
+    font-size: 13px;
+    color: #777;
+    text-align: center;
+    margin-top: 28px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+  }
+  .footer a { color: #0d9488; text-decoration: none; }
+  @media only screen and (max-width: 600px) {
+    .email-container { padding: 20px; }
+    .header h1 { font-size: 20px; }
+  }
+</style>
+<body>
+  <div class="email-container">
+    <div class="header">
+      <h1>Chào mừng bạn đến với KayTicket</h1>
+    </div>
+    <div class="content">
+      <p>Xin chào <span class="highlight">{{ name }}</span>,</p>
+      <p>
+        Cảm ơn bạn đã đăng ký. Tài khoản của bạn đã được tạo và bạn có thể bắt đầu sử dụng hệ thống check-in ngay.
+      </p>
+      <p>
+        Nếu bạn có bất kỳ câu hỏi nào, hãy liên hệ với chúng tôi. Chúc bạn trải nghiệm tốt!
+      </p>
+    </div>
+    <div class="footer">
+      <p>KayTicket System</p>
+      <p><a href="#">Hỗ trợ</a> · <a href="#">Điều khoản</a></p>
+    </div>
+  </div>
+</body>

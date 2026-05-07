@@ -13,6 +13,13 @@ export type JwtPayload = {
   email: string | null;
 };
 
+const PUBLIC_PATH_PREFIXES = [
+  '/nestlens',
+  '/__nestlens__',
+  '/swagger',
+  '/health',
+];
+
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
   constructor(
@@ -31,6 +38,10 @@ export class JwtAuthGuard implements CanActivate {
     }
 
     const request = context.switchToHttp().getRequest<Request>();
+    if (this.isPublicPath(request.path)) {
+      return true;
+    }
+
     const token = this.extractTokenFromHeader(request);
 
     if (!token) {
@@ -75,5 +86,9 @@ export class JwtAuthGuard implements CanActivate {
   private extractTokenFromHeader(request: Request): string | undefined {
     const [type, token] = request.headers.authorization?.split(' ') ?? [];
     return type === 'Bearer' ? token : undefined;
+  }
+
+  private isPublicPath(pathname: string): boolean {
+    return PUBLIC_PATH_PREFIXES.some(prefix => pathname.startsWith(prefix));
   }
 }

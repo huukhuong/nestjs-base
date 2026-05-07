@@ -9,6 +9,9 @@ export const nestlensConfig: NestLensConfig = {
     job: {
       enabled: true,
     },
+    mail: {
+      enabled: true,
+    },
   },
   storage: {
     driver: 'sqlite',
