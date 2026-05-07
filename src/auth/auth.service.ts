@@ -8,6 +8,7 @@ import {
   BaseException,
   UnauthorizedException,
 } from 'src/common/exceptions';
+import { EMailTemplateName } from 'src/mail/constants/mail.constant';
 import { MailService } from 'src/mail/mail.service';
 import { UserService } from 'src/user/user.service';
 import { RegisterDto } from './dto/register.dto';
@@ -170,8 +171,7 @@ export class AuthService {
 
     await this.mailService.sendTemplateMail({
       to: user.email,
-      templateName: 'auth/forgot-password-otp',
-      subject: 'Your password reset OTP',
+      templateName: EMailTemplateName.AUTH_FORGOT_PASSWORD_OTP,
       variables: {
         fullName: user.firstName || user.username || user.email,
         otp,
@@ -201,6 +201,17 @@ export class AuthService {
     );
     await this.userService.updatePasswordById(user.id, hashedPassword);
     await this.authTokenService.revokeAllRefreshTokens(user.id);
+
+    if (user.email) {
+      await this.mailService.sendTemplateMail({
+        to: user.email,
+        templateName: EMailTemplateName.AUTH_PASSWORD_RESET_SUCCESS,
+        variables: {
+          fullName: user.firstName || user.username || user.email,
+          changedAt: new Date().toISOString(),
+        },
+      });
+    }
 
     return true;
   }

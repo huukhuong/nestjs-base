@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import {
   MAIL_QUEUE_NAME,
   MAIL_SEND_TEMPLATE_JOB_NAME,
+  resolveMailSubject,
 } from './constants/mail.constant';
 import { MailLog } from './entities/mail-log.entity';
 import { MailTemplateService } from './mail-template.service';
@@ -39,7 +40,7 @@ export class MailProcessor extends WorkerHost {
     await this.mailTransportService.sendMail({
       from: process.env.MAIL_FROM,
       to: job.data.to,
-      subject: job.data.subject || `Mail template: ${job.data.templateName}`,
+      subject: resolveMailSubject(job.data.templateName, job.data.subject),
       html,
     });
 

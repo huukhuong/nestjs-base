@@ -7,6 +7,7 @@ import { BadRequestException, NotFoundException } from 'src/common/exceptions';
 import {
   MAIL_QUEUE_NAME,
   MAIL_SEND_TEMPLATE_JOB_NAME,
+  resolveMailSubject,
 } from './constants/mail.constant';
 import { SendTemplateMailDto } from './dto/send-template-mail.dto';
 import { MailLog, MailType } from './entities/mail-log.entity';
@@ -29,7 +30,7 @@ export class MailService {
     const mailLog = await this.mailLogRepository.save(
       this.mailLogRepository.create({
         recipient: payload.to,
-        subject: payload.subject || `Mail template: ${payload.templateName}`,
+        subject: resolveMailSubject(payload.templateName, payload.subject),
         type: MailType.TEMPLATE,
         body: payload.templateName,
         context: payload.variables,
