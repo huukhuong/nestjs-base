@@ -1,6 +1,6 @@
 import { NestLensConfig } from 'nestlens';
 
-const nestlensConfig: NestLensConfig = {
+export const nestlensConfig: NestLensConfig = {
   enabled: true,
   watchers: {
     schedule: {
@@ -22,5 +22,3 @@ const nestlensConfig: NestLensConfig = {
     maxAge: 7 * 24, // 7 days
   },
 };
-
-export default nestlensConfig;

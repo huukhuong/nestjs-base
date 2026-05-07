@@ -5,7 +5,7 @@ import {
   ExpressAdapter,
   NestExpressApplication,
 } from '@nestjs/platform-express';
-import { swaggerConfig } from './common/config/swagger';
+import { swaggerConfig } from './common/configs';
 
 const bootstrap = async () => {
   const port = process.env.PORT ?? 3000;

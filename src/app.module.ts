@@ -6,7 +6,7 @@ import { dataSourceOption } from 'database/data-source';
 import { AppController } from './app.controller';
 import { HttpModule } from '@nestjs/axios';
 import { NestLensModule } from 'nestlens';
-import nestlensConfig from './common/config/nestlens';
+import { nestlensConfig } from './common/configs';
 
 @Module({
   imports: [
