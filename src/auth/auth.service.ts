@@ -1,23 +1,33 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { compare, hash } from 'bcrypt';
+import { randomUUID } from 'node:crypto';
 import { EExceptionCodes } from 'src/common/enum/exception-codes.enum';
 import {
   BadRequestException,
   BaseException,
   UnauthorizedException,
 } from 'src/common/exceptions';
+import { MailService } from 'src/mail/mail.service';
 import { UserService } from 'src/user/user.service';
 import { RegisterDto } from './dto/register.dto';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
+import { AuthTokenService } from './auth-token.service';
+import { VerificationService } from 'src/verification/verification.service';
+import { VerificationType } from 'src/verification/verification.types';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
+    private readonly authTokenService: AuthTokenService,
+    private readonly verificationService: VerificationService,
+    private readonly mailService: MailService,
   ) {}
 
   async register(payload: RegisterDto) {
@@ -69,9 +79,7 @@ export class AuthService {
 
   async login(payload: LoginDto) {
     const accountValue = payload.account.trim();
-    const user = accountValue.includes('@')
-      ? await this.userService.findByEmail(accountValue)
-      : await this.userService.findByUsername(accountValue);
+    const user = await this.findUserByAccount(accountValue);
 
     if (!user) {
       throw new UnauthorizedException({
@@ -96,6 +104,7 @@ export class AuthService {
       const refreshPayload = await this.jwtService.verifyAsync<{
         sub: string;
         email: string | null;
+        jti: string;
       }>(payload.refreshToken, {
         secret: String(process.env.JWT_REFRESH_SECRET),
       });
@@ -105,6 +114,16 @@ export class AuthService {
         throw new UnauthorizedException({
           message: 'User not found',
           code: EExceptionCodes.USER_NOT_FOUND,
+        });
+      }
+
+      const activeJti = await this.authTokenService.getActiveRefreshTokenJti(
+        user.id,
+      );
+      if (!activeJti || activeJti !== refreshPayload.jti) {
+        throw new UnauthorizedException({
+          message: 'Refresh token is revoked',
+          code: EExceptionCodes.INVALID_REFRESH_TOKEN,
         });
       }
 
@@ -135,7 +154,61 @@ export class AuthService {
     return safeUser;
   }
 
+  async forgotPassword(payload: ForgotPasswordDto): Promise<boolean> {
+    const accountValue = payload.account.trim();
+    const user = await this.findUserByAccount(accountValue);
+
+    if (!user || !user.email) {
+      return true;
+    }
+
+    const { otp, expiresIn } = await this.verificationService.createOtp(
+      VerificationType.FORGOT_PASSWORD,
+      user.id,
+      user.email,
+    );
+
+    await this.mailService.sendTemplateMail({
+      to: user.email,
+      templateName: 'auth/forgot-password-otp',
+      subject: 'Your password reset OTP',
+      variables: {
+        fullName: user.firstName || user.username || user.email,
+        otp,
+        expiresInMinutes: Math.floor(expiresIn / 60),
+      },
+    });
+
+    return true;
+  }
+
+  async resetPassword(payload: ResetPasswordDto): Promise<boolean> {
+    const resetTokenPayload = await this.verificationService.consumeResetToken(
+      payload.resetToken,
+      VerificationType.FORGOT_PASSWORD,
+    );
+    const user = await this.userService.findById(resetTokenPayload.userId);
+    if (!user) {
+      throw new UnauthorizedException({
+        message: 'User not found',
+        code: EExceptionCodes.USER_NOT_FOUND,
+      });
+    }
+
+    const hashedPassword = await hash(
+      payload.newPassword,
+      Number(process.env.HASH_ROUNDS || 10),
+    );
+    await this.userService.updatePasswordById(user.id, hashedPassword);
+    await this.authTokenService.revokeAllRefreshTokens(user.id);
+
+    return true;
+  }
+
   private async generateTokenPair(userId: string, email: string | null) {
+    const refreshTokenExpiresIn = Number(process.env.JWT_REFRESH_EXPIRATION);
+    const refreshTokenJti = randomUUID();
+
     const accessToken = await this.jwtService.signAsync({
       sub: userId,
       email,
@@ -145,18 +218,31 @@ export class AuthService {
       {
         sub: userId,
         email,
+        jti: refreshTokenJti,
       },
       {
         secret: String(process.env.JWT_REFRESH_SECRET),
-        expiresIn: Number(process.env.JWT_REFRESH_EXPIRATION),
+        expiresIn: refreshTokenExpiresIn,
       },
+    );
+
+    await this.authTokenService.setActiveRefreshTokenJti(
+      userId,
+      refreshTokenJti,
+      refreshTokenExpiresIn,
     );
 
     return {
       accessToken,
       accessTokenExpiredIn: Number(process.env.JWT_EXPIRATION),
       refreshToken,
-      refreshTokenExpiredIn: Number(process.env.JWT_REFRESH_EXPIRATION),
+      refreshTokenExpiredIn: refreshTokenExpiresIn,
     };
+  }
+
+  private findUserByAccount(account: string) {
+    return account.includes('@')
+      ? this.userService.findByEmail(account)
+      : this.userService.findByUsername(account);
   }
 }

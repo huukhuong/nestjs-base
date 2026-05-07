@@ -60,4 +60,10 @@ export class UserService {
         ),
     });
   }
+
+  async updatePasswordById(userId: string, hashedPassword: string) {
+    await this.userRepository.update(userId, {
+      password: hashedPassword,
+    });
+  }
 }

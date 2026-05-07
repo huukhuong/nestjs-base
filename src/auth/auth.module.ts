@@ -6,12 +6,21 @@ import { jwtConfig } from 'src/common/configs';
 import { UserModule } from 'src/user/user.module';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { APP_GUARD } from '@nestjs/core';
+import { VerificationModule } from 'src/verification/verification.module';
+import { MailModule } from 'src/mail/mail.module';
+import { AuthTokenService } from './auth-token.service';
 
 @Module({
-  imports: [JwtModule.register(jwtConfig), UserModule],
+  imports: [
+    JwtModule.register(jwtConfig),
+    UserModule,
+    VerificationModule,
+    MailModule,
+  ],
   controllers: [AuthController],
   providers: [
     AuthService,
+    AuthTokenService,
     JwtAuthGuard,
     {
       provide: APP_GUARD,

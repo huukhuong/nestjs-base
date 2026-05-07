@@ -7,6 +7,8 @@ import { LoginDto } from './dto/login.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -36,6 +38,28 @@ export class AuthController {
   @ApiBody({ type: RefreshTokenDto })
   async refreshToken(@Body() payload: RefreshTokenDto) {
     return this.authService.refreshToken(payload);
+  }
+
+  @Post('forgot-password')
+  @Public()
+  @ApiOperation({ summary: 'Send OTP for forgot password' })
+  @ApiBody({ type: ForgotPasswordDto })
+  async forgotPassword(@Body() payload: ForgotPasswordDto) {
+    await this.authService.forgotPassword(payload);
+    return {
+      message: 'OTP has been sent to your email',
+    };
+  }
+
+  @Post('reset-password')
+  @Public()
+  @ApiOperation({ summary: 'Reset password using verified reset token' })
+  @ApiBody({ type: ResetPasswordDto })
+  async resetPassword(@Body() payload: ResetPasswordDto) {
+    await this.authService.resetPassword(payload);
+    return {
+      message: 'Password reset successfully',
+    };
   }
 
   @Get('me')

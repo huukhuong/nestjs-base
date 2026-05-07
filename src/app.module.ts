@@ -12,6 +12,8 @@ import { UserModule } from './user/user.module';
 import { APP_FILTER } from '@nestjs/core';
 import { ExceptionFilter } from './common/filters';
 import { MailModule } from './mail/mail.module';
+import { VerificationModule } from './verification/verification.module';
+import { RedisModule } from './redis';
 
 @Module({
   imports: [
@@ -23,6 +25,8 @@ import { MailModule } from './mail/mail.module';
     AuthModule,
     UserModule,
     MailModule,
+    VerificationModule,
+    RedisModule,
   ],
   controllers: [AppController],
   providers: [
