@@ -5,7 +5,7 @@ import {
   ExpressAdapter,
   NestExpressApplication,
 } from '@nestjs/platform-express';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { swaggerConfig } from './common/config/swagger';
 
 const bootstrap = async () => {
   const port = process.env.PORT ?? 3000;
@@ -24,13 +24,7 @@ const bootstrap = async () => {
     },
   );
 
-  const config = new DocumentBuilder()
-    .setTitle('API Documentation')
-    .setVersion('1.0')
-    .addBearerAuth()
-    .build();
-  const documentFactory = () => SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('swagger', app, documentFactory);
+  swaggerConfig(app);
 
   await app.listen(port);
 
@@ -38,6 +32,7 @@ const bootstrap = async () => {
   Logger.verbose(`Server is running on port ${port}`);
   Logger.verbose(`CORS Origin: ${JSON.stringify(corsOrigin)}`);
   Logger.verbose(`Swagger URL: ${process.env.HOST}/swagger`);
+  Logger.verbose(`Monitoring URL: ${process.env.HOST}/nestlens`);
   Logger.verbose('============================================');
 };
 

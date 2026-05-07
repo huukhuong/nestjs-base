@@ -5,6 +5,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { dataSourceOption } from 'database/data-source';
 import { AppController } from './app.controller';
 import { HttpModule } from '@nestjs/axios';
+import { NestLensModule } from 'nestlens';
+import nestlensConfig from './common/config/nestlens';
 
 @Module({
   imports: [
@@ -12,6 +14,7 @@ import { HttpModule } from '@nestjs/axios';
     TypeOrmModule.forRoot(dataSourceOption),
     TerminusModule,
     HttpModule,
+    NestLensModule.forRoot(nestlensConfig),
   ],
   controllers: [AppController],
 })
