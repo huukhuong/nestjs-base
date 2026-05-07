@@ -6,6 +6,7 @@ import {
 } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
 import { swaggerConfig, validationConfig } from './common/configs';
+import { ResponseInterceptor } from './common/interceptors';
 
 const bootstrap = async () => {
   const port = process.env.PORT ?? 3000;
@@ -26,6 +27,7 @@ const bootstrap = async () => {
 
   swaggerConfig(app);
   validationConfig(app);
+  app.useGlobalInterceptors(new ResponseInterceptor());
 
   await app.listen(port);
 
