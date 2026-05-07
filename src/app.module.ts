@@ -7,6 +7,10 @@ import { AppController } from './app.controller';
 import { HttpModule } from '@nestjs/axios';
 import { NestLensModule } from 'nestlens';
 import { nestlensConfig } from './common/configs';
+import { AuthModule } from './auth/auth.module';
+import { UserModule } from './user/user.module';
+import { APP_FILTER } from '@nestjs/core';
+import { ExceptionFilter } from './common/filters';
 
 @Module({
   imports: [
@@ -15,7 +19,15 @@ import { nestlensConfig } from './common/configs';
     TerminusModule,
     HttpModule,
     NestLensModule.forRoot(nestlensConfig),
+    AuthModule,
+    UserModule,
   ],
   controllers: [AppController],
+  providers: [
+    {
+      provide: APP_FILTER,
+      useClass: ExceptionFilter,
+    },
+  ],
 })
 export class AppModule {}

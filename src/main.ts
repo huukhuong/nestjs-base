@@ -1,11 +1,11 @@
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
 import { Logger } from '@nestjs/common';
+import { NestFactory } from '@nestjs/core';
 import {
   ExpressAdapter,
   NestExpressApplication,
 } from '@nestjs/platform-express';
-import { swaggerConfig } from './common/configs';
+import { AppModule } from './app.module';
+import { swaggerConfig, validationConfig } from './common/configs';
 
 const bootstrap = async () => {
   const port = process.env.PORT ?? 3000;
@@ -25,6 +25,7 @@ const bootstrap = async () => {
   );
 
   swaggerConfig(app);
+  validationConfig(app);
 
   await app.listen(port);
 
@@ -33,7 +34,6 @@ const bootstrap = async () => {
   Logger.verbose(`CORS Origin: ${JSON.stringify(corsOrigin)}`);
   Logger.verbose(`Swagger URL: ${process.env.HOST}/swagger`);
   Logger.verbose(`Monitoring URL: ${process.env.HOST}/nestlens`);
-  Logger.verbose(`ENV: ${JSON.stringify(process.env, null, 2)}`);
   Logger.verbose('============================================');
 };
 
