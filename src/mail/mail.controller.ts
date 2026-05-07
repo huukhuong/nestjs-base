@@ -4,7 +4,7 @@ import { UUIDParam } from 'src/common/decorators/uuid-param.decorator';
 import { SendTemplateMailDto } from './dto/send-template-mail.dto';
 import { MailService } from './mail.service';
 
-@ApiTags('mail')
+@ApiTags('Mail')
 @Controller('mail')
 @ApiBearerAuth()
 export class MailController {
