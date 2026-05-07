@@ -5,7 +5,7 @@ import { ERoles } from 'src/common/enum';
 import { Roles } from 'src/common/decorators';
 import { CreateUserDto } from './dto/create-user.dto';
 
-@ApiTags('users')
+@ApiTags('User')
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}

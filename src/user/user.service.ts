@@ -32,6 +32,14 @@ export class UserService {
     });
   }
 
+  async findById(id: string): Promise<UserEntity | null> {
+    return this.userRepository.findOne({
+      where: {
+        id,
+      },
+    });
+  }
+
   async findByUsername(username: string): Promise<UserEntity | null> {
     return this.userRepository.findOne({
       where: {
