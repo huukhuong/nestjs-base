@@ -33,6 +33,7 @@ const bootstrap = async () => {
   Logger.verbose(`CORS Origin: ${JSON.stringify(corsOrigin)}`);
   Logger.verbose(`Swagger URL: ${process.env.HOST}/swagger`);
   Logger.verbose(`Monitoring URL: ${process.env.HOST}/nestlens`);
+  Logger.verbose(`ENV: ${JSON.stringify(process.env, null, 2)}`);
   Logger.verbose('============================================');
 };
 

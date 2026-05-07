@@ -11,7 +11,7 @@
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/main",
+    "start:prod": "node dist/src/main.js",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "prepare": "husky",
     "make:migration": "node scripts/make-migration.mjs",
@@ -78,5 +78,5 @@
       "eslint --fix"
     ]
   },
-  "packageManager": "pnpm"
+  "packageManager": "pnpm@10.30.3"
 }
