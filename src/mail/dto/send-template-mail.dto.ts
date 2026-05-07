@@ -12,7 +12,7 @@ export class SendTemplateMailDto {
   @IsEmail()
   to: string;
 
-  @ApiProperty({ example: 'auth/welcome' })
+  @ApiProperty({ example: 'welcome' })
   @IsString()
   @MinLength(1)
   templateName: string;
