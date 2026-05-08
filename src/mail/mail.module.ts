@@ -1,38 +1,52 @@
-import { Module } from '@nestjs/common';
-import { MailService } from './mail.service';
-import { MailController } from './mail.controller';
-import { MailerModule } from '@nestjs-modules/mailer';
-import { join } from 'path';
-import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
-import { ENV } from 'src/config/env';
+import { Global, Module } from '@nestjs/common';
+import { BullModule, getQueueToken } from '@nestjs/bullmq';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Mail } from './mail.entity';
+import { NESTLENS_MAILER_SERVICE, NESTLENS_REDIS_CLIENT } from 'nestlens';
+import { MailController } from './mail.controller';
+import { MailService } from './mail.service';
+import { MAIL_QUEUE_NAME } from './constants/mail.constant';
+import { MailProcessor } from './mail.processor';
+import { MailTemplateService } from './mail-template.service';
+import { MailTransportService } from './mail-transport.service';
+import { MailLogEntity } from './entities/mail-log.entity';
 
+@Global()
 @Module({
   imports: [
-    MailerModule.forRoot({
-      transport: {
-        host: ENV.MAIL_HOST,
-        secure: false,
-        auth: {
-          user: ENV.MAIL_USER,
-          pass: ENV.MAIL_PASS,
-        },
-      },
-      defaults: {
-        from: `"${ENV.MAIL_FROM}" <${ENV.MAIL_USER}>`,
-      },
-      template: {
-        dir: join(__dirname, 'templates'),
-        adapter: new HandlebarsAdapter(),
-        options: {
-          strict: true,
-        },
+    TypeOrmModule.forFeature([MailLogEntity]),
+    BullModule.forRoot({
+      connection: {
+        host: process.env.REDIS_HOST,
+        port: Number(process.env.REDIS_PORT),
+        password: process.env.REDIS_PASSWORD,
       },
     }),
-    TypeOrmModule.forFeature([Mail]),
+    BullModule.registerQueue({
+      name: MAIL_QUEUE_NAME,
+    }),
   ],
-  providers: [MailService],
   controllers: [MailController],
+  providers: [
+    MailService,
+    MailProcessor,
+    MailTemplateService,
+    MailTransportService,
+    { provide: NESTLENS_MAILER_SERVICE, useExisting: MailTransportService },
+    {
+      provide: NESTLENS_REDIS_CLIENT,
+      useFactory: async (queue: { client?: Promise<object> | object }) => {
+        const client = queue?.client;
+        if (client == null) {
+          return null;
+        }
+
+        return typeof (client as Promise<object>).then === 'function'
+          ? await (client as Promise<object>)
+          : client;
+      },
+      inject: [getQueueToken(MAIL_QUEUE_NAME)],
+    },
+  ],
+  exports: [MailService, NESTLENS_MAILER_SERVICE, NESTLENS_REDIS_CLIENT],
 })
 export class MailModule {}

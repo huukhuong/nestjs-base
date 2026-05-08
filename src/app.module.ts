@@ -1,47 +1,38 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { TerminusModule } from '@nestjs/terminus';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { dataSourceOption } from 'database/data-source';
+import { AppController } from './app.controller';
+import { HttpModule } from '@nestjs/axios';
+import { NestLensModule } from 'nestlens';
+import { nestlensConfig } from './common/configs';
 import { AuthModule } from './auth/auth.module';
-import { MailModule } from './mail/mail.module';
 import { UserModule } from './user/user.module';
-import { APP_GUARD } from '@nestjs/core';
-import { AuthGuard } from './auth/auth.guard';
-import { LocationModule } from './location/location.module';
-import { AuthorizeModule } from './authorize/authorize.module';
-import { RoleGuard } from './authorize/guards/role.guard';
-import { PermissionGuard } from './authorize/guards/permission.guard';
-import { User } from './user/user.entity';
-import { Role } from './authorize/entities/role.entity';
-import { Permission } from './authorize/entities/permission.entity';
-import { PermissionGroup } from './authorize/entities/permission-group.entity';
+import { APP_FILTER } from '@nestjs/core';
+import { ExceptionFilter } from './common/filters';
+import { MailModule } from './mail/mail.module';
+import { VerificationModule } from './verification/verification.module';
+import { RedisModule } from './redis';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-    }),
+    ConfigModule.forRoot(),
     TypeOrmModule.forRoot(dataSourceOption),
-    TypeOrmModule.forFeature([User, Role, Permission, PermissionGroup]),
-    MailModule,
-    UserModule,
+    TerminusModule,
+    HttpModule,
+    NestLensModule.forRoot(nestlensConfig),
     AuthModule,
-    LocationModule,
-    AuthorizeModule,
+    UserModule,
+    MailModule,
+    VerificationModule,
+    RedisModule,
   ],
-  controllers: [],
+  controllers: [AppController],
   providers: [
     {
-      provide: APP_GUARD,
-      useClass: AuthGuard,
-    },
-    {
-      provide: APP_GUARD,
-      useClass: RoleGuard,
-    },
-    {
-      provide: APP_GUARD,
-      useClass: PermissionGuard,
+      provide: APP_FILTER,
+      useClass: ExceptionFilter,
     },
   ],
 })
