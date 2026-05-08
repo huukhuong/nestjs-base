@@ -7,8 +7,8 @@ export enum MailType {
   TEMPLATE = 'template',
 }
 
-@Entity()
-export class MailLog extends BaseEntity {
+@Entity('mail_logs')
+export class MailLogEntity extends BaseEntity {
   @Column({ type: 'varchar', length: 255 })
   recipient: string;
 

@@ -9,6 +9,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { VerificationModule } from 'src/verification/verification.module';
 import { MailModule } from 'src/mail/mail.module';
 import { AuthTokenService } from './auth-token.service';
+import { RbacModule, RbacGuard } from 'src/rbac';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { AuthTokenService } from './auth-token.service';
     UserModule,
     VerificationModule,
     MailModule,
+    RbacModule,
   ],
   controllers: [AuthController],
   providers: [
@@ -25,6 +27,11 @@ import { AuthTokenService } from './auth-token.service';
     {
       provide: APP_GUARD,
       useExisting: JwtAuthGuard,
+    },
+    RbacGuard,
+    {
+      provide: APP_GUARD,
+      useExisting: RbacGuard,
     },
   ],
 })

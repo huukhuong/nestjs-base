@@ -8,12 +8,12 @@ import { MAIL_QUEUE_NAME } from './constants/mail.constant';
 import { MailProcessor } from './mail.processor';
 import { MailTemplateService } from './mail-template.service';
 import { MailTransportService } from './mail-transport.service';
-import { MailLog } from './entities/mail-log.entity';
+import { MailLogEntity } from './entities/mail-log.entity';
 
 @Global()
 @Module({
   imports: [
-    TypeOrmModule.forFeature([MailLog]),
+    TypeOrmModule.forFeature([MailLogEntity]),
     BullModule.forRoot({
       connection: {
         host: process.env.REDIS_HOST,

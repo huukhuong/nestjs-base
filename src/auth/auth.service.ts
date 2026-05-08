@@ -20,6 +20,7 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 import { AuthTokenService } from './auth-token.service';
 import { VerificationService } from 'src/verification/verification.service';
 import { VerificationType } from 'src/verification/verification.types';
+import { RbacService } from 'src/rbac';
 
 @Injectable()
 export class AuthService {
@@ -29,6 +30,7 @@ export class AuthService {
     private readonly authTokenService: AuthTokenService,
     private readonly verificationService: VerificationService,
     private readonly mailService: MailService,
+    private readonly rbacService: RbacService,
   ) {}
 
   async register(payload: RegisterDto) {
@@ -152,7 +154,16 @@ export class AuthService {
     const safeUser = Object.fromEntries(
       Object.entries(user).filter(([key]) => key !== 'password'),
     );
-    return safeUser;
+    const [roles, permissions] = await Promise.all([
+      this.rbacService.getUserRoleCodes(userId),
+      this.rbacService.getUserPermissionCodes(userId),
+    ]);
+
+    return {
+      ...safeUser,
+      roles,
+      permissions,
+    };
   }
 
   async forgotPassword(payload: ForgotPasswordDto): Promise<boolean> {

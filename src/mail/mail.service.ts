@@ -10,7 +10,7 @@ import {
   resolveMailSubject,
 } from './constants/mail.constant';
 import { SendTemplateMailDto } from './dto/send-template-mail.dto';
-import { MailLog, MailType } from './entities/mail-log.entity';
+import { MailLogEntity, MailType } from './entities/mail-log.entity';
 import { MailTemplateService } from './mail-template.service';
 import { SendTemplateMailJobData } from './types/send-template-mail-job-data.type';
 
@@ -19,8 +19,8 @@ export class MailService {
   constructor(
     @InjectQueue(MAIL_QUEUE_NAME)
     private readonly mailQueue: Queue<SendTemplateMailJobData>,
-    @InjectRepository(MailLog)
-    private readonly mailLogRepository: Repository<MailLog>,
+    @InjectRepository(MailLogEntity)
+    private readonly mailLogRepository: Repository<MailLogEntity>,
     private readonly mailTemplateService: MailTemplateService,
   ) {}
 

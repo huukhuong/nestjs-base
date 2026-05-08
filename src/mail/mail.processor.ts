@@ -7,7 +7,7 @@ import {
   MAIL_SEND_TEMPLATE_JOB_NAME,
   resolveMailSubject,
 } from './constants/mail.constant';
-import { MailLog } from './entities/mail-log.entity';
+import { MailLogEntity } from './entities/mail-log.entity';
 import { MailTemplateService } from './mail-template.service';
 import { MailTransportService } from './mail-transport.service';
 import { SendTemplateMailJobData } from './types/send-template-mail-job-data.type';
@@ -17,8 +17,8 @@ export class MailProcessor extends WorkerHost {
   constructor(
     private readonly templateService: MailTemplateService,
     private readonly mailTransportService: MailTransportService,
-    @InjectRepository(MailLog)
-    private readonly mailLogRepository: Repository<MailLog>,
+    @InjectRepository(MailLogEntity)
+    private readonly mailLogRepository: Repository<MailLogEntity>,
   ) {
     super();
   }

@@ -5,7 +5,7 @@ export class CreateUserTable1778138546319 implements MigrationInterface {
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
-      CREATE TABLE "user_entities" (
+      CREATE TABLE "users" (
         "id" uuid NOT NULL DEFAULT uuid_generate_v4 (),
         "first_name" character varying(50),
         "last_name" character varying(50),
@@ -25,6 +25,6 @@ export class CreateUserTable1778138546319 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`DROP TABLE "user_entities"`);
+    await queryRunner.query(`DROP TABLE "users"`);
   }
 }
