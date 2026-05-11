@@ -151,19 +151,7 @@ export class AuthService {
         code: EExceptionCodes.UNAUTHORIZED,
       });
     }
-    const safeUser = Object.fromEntries(
-      Object.entries(user).filter(([key]) => key !== 'password'),
-    );
-    const [roles, permissions] = await Promise.all([
-      this.rbacService.getUserRoleCodes(userId),
-      this.rbacService.getUserPermissionCodes(userId),
-    ]);
-
-    return {
-      ...safeUser,
-      roles,
-      permissions,
-    };
+    return this.rbacService.buildUserRbacDetail(user);
   }
 
   async forgotPassword(payload: ForgotPasswordDto): Promise<boolean> {

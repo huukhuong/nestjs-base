@@ -1,7 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { ConflictException, NotFoundException } from 'src/common/exceptions';
+import { In, Repository } from 'typeorm';
+import {
+  BadRequestException,
+  ConflictException,
+  NotFoundException,
+} from 'src/common/exceptions';
+import { ERoles } from 'src/common/enum';
+import { UserService } from 'src/user/user.service';
+import { UserEntity } from 'src/user/entities/user.entity';
 import {
   PermissionEntity,
   RoleEntity,
@@ -23,10 +30,12 @@ export class RbacService {
     private readonly rolePermissionRepository: Repository<RolePermissionEntity>,
     @InjectRepository(UserPermissionEntity)
     private readonly userPermissionRepository: Repository<UserPermissionEntity>,
+    @Inject(forwardRef(() => UserService))
+    private readonly userService: UserService,
   ) {}
 
   async createRole(code: string, name: string): Promise<RoleEntity> {
-    const normalizedCode = code.trim().toUpperCase();
+    const normalizedCode = code.trim().toUpperCase() as ERoles;
     const exists = await this.roleRepository.findOne({
       where: { code: normalizedCode },
     });
@@ -43,15 +52,12 @@ export class RbacService {
     roleId: string,
     payload: { code?: string; name?: string },
   ): Promise<RoleEntity> {
-    const role = await this.roleRepository.findOne({ where: { id: roleId } });
-    if (!role) {
-      throw new NotFoundException({ message: 'Role not found' });
-    }
+    await this.requireRoleById(roleId);
 
     const patch: Partial<RoleEntity> = {};
 
     if (payload.code !== undefined) {
-      const normalizedCode = payload.code.trim().toUpperCase();
+      const normalizedCode = payload.code.trim().toUpperCase() as ERoles;
       const existingRole = await this.roleRepository.findOne({
         where: { code: normalizedCode },
       });
@@ -67,6 +73,38 @@ export class RbacService {
 
     await this.roleRepository.update(roleId, patch);
     return this.roleRepository.findOneByOrFail({ id: roleId });
+  }
+
+  findAllRoles(): Promise<RoleEntity[]> {
+    return this.roleRepository.find({ order: { createdAt: 'DESC' } });
+  }
+
+  async getRoleDetail(
+    roleId: string,
+  ): Promise<RoleEntity & { permissions: PermissionEntity[] }> {
+    const role = await this.requireRoleById(roleId);
+    const links = await this.rolePermissionRepository.find({
+      where: { roleId },
+      relations: { permission: true },
+    });
+    const permissions = links
+      .map(l => l.permission)
+      .filter((p): p is PermissionEntity => p != null)
+      .sort((a, b) => a.code.localeCompare(b.code));
+
+    return { ...role, permissions } as RoleEntity & {
+      permissions: PermissionEntity[];
+    };
+  }
+
+  async deleteRole(roleId: string): Promise<void> {
+    const role = await this.requireRoleById(roleId);
+    if (role.code === ERoles.SUPER_ADMIN) {
+      throw new BadRequestException({
+        message: 'Cannot delete SUPER_ADMIN role',
+      });
+    }
+    await this.roleRepository.delete({ id: roleId });
   }
 
   async createPermission(
@@ -95,12 +133,7 @@ export class RbacService {
     permissionId: string,
     payload: { code?: string; name?: string },
   ): Promise<PermissionEntity> {
-    const permission = await this.permissionRepository.findOne({
-      where: { id: permissionId },
-    });
-    if (!permission) {
-      throw new NotFoundException({ message: 'Permission not found' });
-    }
+    await this.findPermissionById(permissionId);
 
     const patch: Partial<PermissionEntity> = {};
 
@@ -125,140 +158,120 @@ export class RbacService {
     return this.permissionRepository.findOneByOrFail({ id: permissionId });
   }
 
-  findAllRoles(): Promise<RoleEntity[]> {
-    return this.roleRepository.find({ order: { createdAt: 'DESC' } });
-  }
-
   findAllPermissions(): Promise<PermissionEntity[]> {
     return this.permissionRepository.find({ order: { createdAt: 'DESC' } });
   }
 
-  async assignRoleToUser(userId: string, roleId: string): Promise<void> {
-    await this.ensureRoleExists(roleId);
-    const exists = await this.userRoleRepository.findOne({
-      where: { userId, roleId },
+  async findPermissionById(permissionId: string): Promise<PermissionEntity> {
+    const permission = await this.permissionRepository.findOne({
+      where: { id: permissionId },
     });
-    if (exists) {
-      return;
+    if (!permission) {
+      throw new NotFoundException({ message: 'Permission not found' });
     }
+    return permission;
+  }
 
-    await this.userRoleRepository.save(
-      this.userRoleRepository.create({ userId, roleId }),
+  async deletePermission(permissionId: string): Promise<void> {
+    await this.findPermissionById(permissionId);
+    await this.permissionRepository.delete({ id: permissionId });
+  }
+
+  async getUserRbacDetail(userId: string): Promise<
+    Record<string, unknown> & {
+      roles: (RoleEntity & { permissions: PermissionEntity[] })[];
+      permissions: PermissionEntity[];
+    }
+  > {
+    const user = await this.userService.findById(userId);
+    if (!user) {
+      throw new NotFoundException({ message: 'User not found' });
+    }
+    return this.buildUserRbacDetail(user);
+  }
+
+  /**
+   * User fields + roles + permissions on one object (same as getUserRbacDetail).
+   */
+  async buildUserRbacDetail(user: UserEntity): Promise<
+    Record<string, unknown> & {
+      roles: (RoleEntity & { permissions: PermissionEntity[] })[];
+      permissions: PermissionEntity[];
+    }
+  > {
+    const userId = user.id;
+    const safeUser = Object.fromEntries(
+      Object.entries(user).filter(([key]) => key !== 'password'),
     );
+
+    const roles = await this.roleRepository
+      .createQueryBuilder('r')
+      .innerJoin(UserRoleEntity, 'ur', 'ur.roleId = r.id')
+      .where('ur.userId = :userId', { userId })
+      .orderBy('r.code', 'ASC')
+      .getMany();
+
+    const rolesWithPermissions = await this.attachPermissionsToRoles(roles);
+
+    const codes = await this.getUserPermissionCodes(userId);
+    const permissions =
+      codes.length === 0
+        ? []
+        : await this.permissionRepository.find({
+            where: { code: In(codes) },
+            order: { code: 'ASC' },
+          });
+
+    return {
+      ...safeUser,
+      roles: rolesWithPermissions,
+      permissions,
+    };
   }
 
-  async revokeRoleFromUser(userId: string, roleId: string): Promise<void> {
-    await this.userRoleRepository.delete({ userId, roleId });
-  }
-
-  async assignPermissionToRole(
-    roleId: string,
-    permissionId: string,
-  ): Promise<void> {
-    await Promise.all([
-      this.ensureRoleExists(roleId),
-      this.ensurePermissionExists(permissionId),
-    ]);
-    const exists = await this.rolePermissionRepository.findOne({
-      where: { roleId, permissionId },
+  /** Each role includes permissions linked via role_permissions (same idea as GET role detail). */
+  private async attachPermissionsToRoles(
+    roles: RoleEntity[],
+  ): Promise<(RoleEntity & { permissions: PermissionEntity[] })[]> {
+    if (roles.length === 0) {
+      return [];
+    }
+    const roleIds = roles.map(r => r.id);
+    const links = await this.rolePermissionRepository.find({
+      where: { roleId: In(roleIds) },
+      relations: { permission: true },
     });
-    if (exists) {
-      return;
+    const byRoleId = new Map<string, PermissionEntity[]>();
+    for (const link of links) {
+      const p = link.permission;
+      if (!p) {
+        continue;
+      }
+      const list = byRoleId.get(link.roleId) ?? [];
+      list.push(p);
+      byRoleId.set(link.roleId, list);
     }
-
-    await this.rolePermissionRepository.save(
-      this.rolePermissionRepository.create({ roleId, permissionId }),
-    );
-  }
-
-  async revokePermissionFromRole(
-    roleId: string,
-    permissionId: string,
-  ): Promise<void> {
-    await this.rolePermissionRepository.delete({ roleId, permissionId });
-  }
-
-  async assignPermissionToUser(
-    userId: string,
-    permissionId: string,
-  ): Promise<void> {
-    await this.ensurePermissionExists(permissionId);
-    const exists = await this.userPermissionRepository.findOne({
-      where: { userId, permissionId },
+    return roles.map(role => {
+      const perms = (byRoleId.get(role.id) ?? []).sort((a, b) =>
+        a.code.localeCompare(b.code),
+      );
+      return { ...role, permissions: perms } as RoleEntity & {
+        permissions: PermissionEntity[];
+      };
     });
-    if (exists) {
-      return;
-    }
-
-    await this.userPermissionRepository.save(
-      this.userPermissionRepository.create({ userId, permissionId }),
-    );
   }
 
-  async revokePermissionFromUser(
-    userId: string,
-    permissionId: string,
-  ): Promise<void> {
-    await this.userPermissionRepository.delete({ userId, permissionId });
-  }
-
-  async assignManyRolesToUser(
+  async syncRolesForUser(
     userId: string,
     roleIds: string[],
-  ): Promise<void> {
+  ): Promise<
+    Record<string, unknown> & {
+      roles: (RoleEntity & { permissions: PermissionEntity[] })[];
+      permissions: PermissionEntity[];
+    }
+  > {
     for (const roleId of roleIds) {
-      await this.assignRoleToUser(userId, roleId);
-    }
-  }
-
-  async revokeManyRolesFromUser(
-    userId: string,
-    roleIds: string[],
-  ): Promise<void> {
-    for (const roleId of roleIds) {
-      await this.revokeRoleFromUser(userId, roleId);
-    }
-  }
-
-  async assignManyPermissionsToRole(
-    roleId: string,
-    permissionIds: string[],
-  ): Promise<void> {
-    for (const permissionId of permissionIds) {
-      await this.assignPermissionToRole(roleId, permissionId);
-    }
-  }
-
-  async revokeManyPermissionsFromRole(
-    roleId: string,
-    permissionIds: string[],
-  ): Promise<void> {
-    for (const permissionId of permissionIds) {
-      await this.revokePermissionFromRole(roleId, permissionId);
-    }
-  }
-
-  async assignManyPermissionsToUser(
-    userId: string,
-    permissionIds: string[],
-  ): Promise<void> {
-    for (const permissionId of permissionIds) {
-      await this.assignPermissionToUser(userId, permissionId);
-    }
-  }
-
-  async revokeManyPermissionsFromUser(
-    userId: string,
-    permissionIds: string[],
-  ): Promise<void> {
-    for (const permissionId of permissionIds) {
-      await this.revokePermissionFromUser(userId, permissionId);
-    }
-  }
-
-  async syncRolesForUser(userId: string, roleIds: string[]): Promise<void> {
-    for (const roleId of roleIds) {
-      await this.ensureRoleExists(roleId);
+      await this.requireRoleById(roleId);
     }
 
     const currentRows = await this.userRoleRepository.find({
@@ -271,21 +284,26 @@ export class RbacService {
     const toAdd = targetRoleIds.filter(id => !currentRoleIds.includes(id));
     const toRemove = currentRoleIds.filter(id => !targetRoleIds.includes(id));
 
-    if (toAdd.length > 0) {
-      await this.assignManyRolesToUser(userId, toAdd);
+    for (const roleId of toAdd) {
+      await this.insertUserRoleIfAbsent(userId, roleId);
     }
     if (toRemove.length > 0) {
-      await this.revokeManyRolesFromUser(userId, toRemove);
+      await this.userRoleRepository.delete({
+        userId,
+        roleId: In(toRemove),
+      });
     }
+
+    return this.getUserRbacDetail(userId);
   }
 
   async syncPermissionsForRole(
     roleId: string,
     permissionIds: string[],
-  ): Promise<void> {
-    await this.ensureRoleExists(roleId);
+  ): Promise<RoleEntity & { permissions: PermissionEntity[] }> {
+    await this.requireRoleById(roleId);
     for (const permissionId of permissionIds) {
-      await this.ensurePermissionExists(permissionId);
+      await this.findPermissionById(permissionId);
     }
 
     const currentRows = await this.rolePermissionRepository.find({
@@ -302,20 +320,30 @@ export class RbacService {
       id => !targetPermissionIds.includes(id),
     );
 
-    if (toAdd.length > 0) {
-      await this.assignManyPermissionsToRole(roleId, toAdd);
+    for (const permissionId of toAdd) {
+      await this.insertRolePermissionIfAbsent(roleId, permissionId);
     }
     if (toRemove.length > 0) {
-      await this.revokeManyPermissionsFromRole(roleId, toRemove);
+      await this.rolePermissionRepository.delete({
+        roleId,
+        permissionId: In(toRemove),
+      });
     }
+
+    return this.getRoleDetail(roleId);
   }
 
   async syncPermissionsForUser(
     userId: string,
     permissionIds: string[],
-  ): Promise<void> {
+  ): Promise<
+    Record<string, unknown> & {
+      roles: (RoleEntity & { permissions: PermissionEntity[] })[];
+      permissions: PermissionEntity[];
+    }
+  > {
     for (const permissionId of permissionIds) {
-      await this.ensurePermissionExists(permissionId);
+      await this.findPermissionById(permissionId);
     }
 
     const currentRows = await this.userPermissionRepository.find({
@@ -332,12 +360,17 @@ export class RbacService {
       id => !targetPermissionIds.includes(id),
     );
 
-    if (toAdd.length > 0) {
-      await this.assignManyPermissionsToUser(userId, toAdd);
+    for (const permissionId of toAdd) {
+      await this.insertUserPermissionIfAbsent(userId, permissionId);
     }
     if (toRemove.length > 0) {
-      await this.revokeManyPermissionsFromUser(userId, toRemove);
+      await this.userPermissionRepository.delete({
+        userId,
+        permissionId: In(toRemove),
+      });
     }
+
+    return this.getUserRbacDetail(userId);
   }
 
   async getUserRoleCodes(userId: string): Promise<string[]> {
@@ -376,19 +409,56 @@ export class RbacService {
     return Array.from(new Set([...direct, ...viaRoles].map(r => r.code)));
   }
 
-  private async ensureRoleExists(roleId: string): Promise<void> {
+  private async requireRoleById(roleId: string): Promise<RoleEntity> {
     const role = await this.roleRepository.findOne({ where: { id: roleId } });
     if (!role) {
       throw new NotFoundException({ message: 'Role not found' });
     }
+    return role;
   }
 
-  private async ensurePermissionExists(permissionId: string): Promise<void> {
-    const permission = await this.permissionRepository.findOne({
-      where: { id: permissionId },
+  private async insertUserRoleIfAbsent(
+    userId: string,
+    roleId: string,
+  ): Promise<void> {
+    const exists = await this.userRoleRepository.findOne({
+      where: { userId, roleId },
     });
-    if (!permission) {
-      throw new NotFoundException({ message: 'Permission not found' });
+    if (exists) {
+      return;
     }
+    await this.userRoleRepository.save(
+      this.userRoleRepository.create({ userId, roleId }),
+    );
+  }
+
+  private async insertRolePermissionIfAbsent(
+    roleId: string,
+    permissionId: string,
+  ): Promise<void> {
+    const exists = await this.rolePermissionRepository.findOne({
+      where: { roleId, permissionId },
+    });
+    if (exists) {
+      return;
+    }
+    await this.rolePermissionRepository.save(
+      this.rolePermissionRepository.create({ roleId, permissionId }),
+    );
+  }
+
+  private async insertUserPermissionIfAbsent(
+    userId: string,
+    permissionId: string,
+  ): Promise<void> {
+    const exists = await this.userPermissionRepository.findOne({
+      where: { userId, permissionId },
+    });
+    if (exists) {
+      return;
+    }
+    await this.userPermissionRepository.save(
+      this.userPermissionRepository.create({ userId, permissionId }),
+    );
   }
 }

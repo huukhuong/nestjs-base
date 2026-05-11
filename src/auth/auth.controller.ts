@@ -76,7 +76,11 @@ export class AuthController {
 
   @Get('me')
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Get current user profile' })
+  @ApiOperation({
+    summary: 'Get current user profile',
+    description:
+      '`data` is the user: each item in `roles` includes that role’s `permissions`; top-level `permissions` is the effective union (direct + via roles).',
+  })
   async me(@User() user: UserEntity) {
     return this.authService.me(user.id);
   }

@@ -1,11 +1,12 @@
 import { DataSource } from 'typeorm';
 import { hash } from 'bcrypt';
+import { ERoles } from 'src/common/enum';
 import { RoleEntity, UserRoleEntity } from 'src/rbac';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { UserStatus } from 'src/user/entities/user-status.enum';
 
 export async function superAdminSeeder(dataSource: DataSource): Promise<void> {
-  const roleCode = 'SUPER_ADMIN';
+  const roleCode = ERoles.SUPER_ADMIN;
   const roleName = 'Super Administrator';
 
   const superAdminEmail = 'superadmin@example.com';
@@ -27,12 +28,14 @@ export async function superAdminSeeder(dataSource: DataSource): Promise<void> {
   const userRepository = dataSource.getRepository(UserEntity);
   const userRoleRepository = dataSource.getRepository(UserRoleEntity);
 
-  let role = await roleRepository.findOne({ where: { code: roleCode } });
-  if (!role) {
-    role = await roleRepository.save(
+  const existingRole = await roleRepository.findOne({
+    where: { code: roleCode },
+  });
+  const role =
+    existingRole ??
+    (await roleRepository.save(
       roleRepository.create({ code: roleCode, name: roleName }),
-    );
-  }
+    ));
 
   let user = await userRepository.findOne({
     where: [{ email: superAdminEmail }, { username: superAdminUsername }],

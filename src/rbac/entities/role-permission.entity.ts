@@ -1,4 +1,4 @@
-import { Entity, Index, ManyToOne, JoinColumn, Column } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from 'src/common/entities';
 import { RoleEntity } from './role.entity';
 import { PermissionEntity } from './permission.entity';
@@ -6,17 +6,17 @@ import { PermissionEntity } from './permission.entity';
 @Entity('role_permissions')
 @Index(['roleId', 'permissionId'], { unique: true })
 export class RolePermissionEntity extends BaseEntity {
-  @Column({ type: 'uuid' })
+  @Column({ type: 'uuid', name: 'role_id' })
   roleId: string;
 
-  @Column({ type: 'uuid' })
+  @Column({ type: 'uuid', name: 'permission_id' })
   permissionId: string;
 
   @ManyToOne(() => RoleEntity, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'roleId' })
+  @JoinColumn({ name: 'role_id' })
   role: RoleEntity;
 
   @ManyToOne(() => PermissionEntity, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'permissionId' })
+  @JoinColumn({ name: 'permission_id' })
   permission: PermissionEntity;
 }

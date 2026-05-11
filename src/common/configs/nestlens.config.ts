@@ -21,7 +21,7 @@ export const nestlensConfig: NestLensConfig = {
   },
   pruning: {
     enabled: true,
-    interval: 12 * 60, // 12 hours
-    maxAge: 7 * 24, // 7 days
+    interval: Number(process.env.NESTLENS_INTERVAL_MINUTES),
+    maxAge: Number(process.env.NESTLENS_MAX_AGE_DAYS) * 24,
   },
 };

@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { map, Observable } from 'rxjs';
 import { BaseResponse, successResponse } from '../responses';
+import { reorderTimestampsInResponseData } from '../utils/reorder-timestamps-last';
 
 const isBaseResponse = (value: unknown): value is BaseResponse<unknown> =>
   !!value && typeof value === 'object' && 'success' in value && 'data' in value;
@@ -45,9 +46,10 @@ export class ResponseInterceptor<T> implements NestInterceptor<
           });
         }
 
+        const payload = data ?? null;
         return successResponse({
           statusCode: (statusCode as HttpStatus) || HttpStatus.OK,
-          data: data ?? null,
+          data: reorderTimestampsInResponseData(payload),
         });
       }),
     );

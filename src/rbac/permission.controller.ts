@@ -1,16 +1,17 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
-  Patch,
   Post,
+  Put,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Roles, UUIDParam } from 'src/common/decorators';
 import { ERoles } from 'src/common/enum';
-import { CreatePermissionDto } from './dto';
+import { CreatePermissionDto, UpdatePermissionDto } from './dto';
 import { RbacService } from './rbac.service';
 
 @ApiTags('Permission')
@@ -21,7 +22,7 @@ export class PermissionController {
   constructor(private readonly rbacService: RbacService) {}
 
   @Get()
-  @ApiOperation({ summary: 'List all permissions' })
+  @ApiOperation({ summary: 'List permissions' })
   findPermissions() {
     return this.rbacService.findAllPermissions();
   }
@@ -34,13 +35,28 @@ export class PermissionController {
     return this.rbacService.createPermission(payload.code, payload.name);
   }
 
-  @Patch(':permissionId')
+  @Get(':permissionId')
+  @ApiOperation({ summary: 'Get permission by id' })
+  getPermission(@UUIDParam('permissionId') permissionId: string) {
+    return this.rbacService.findPermissionById(permissionId);
+  }
+
+  @Put(':permissionId')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Update permission' })
+  @ApiBody({ type: UpdatePermissionDto })
   updatePermission(
     @UUIDParam('permissionId') permissionId: string,
-    @Body() payload: { code?: string; name?: string },
+    @Body() payload: UpdatePermissionDto,
   ) {
     return this.rbacService.updatePermission(permissionId, payload);
+  }
+
+  @Delete(':permissionId')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Delete permission' })
+  async deletePermission(@UUIDParam('permissionId') permissionId: string) {
+    await this.rbacService.deletePermission(permissionId);
+    return { message: 'Permission deleted' };
   }
 }
